@@ -1,0 +1,41 @@
+{
+  "name": "codex-custom-studio",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "server": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dist": "electron-builder --mac dmg"
+  },
+  "build": {
+    "appId": "studio.codex.custom",
+    "productName": "Codex Studio",
+    "mac": {
+      "category": "public.app-category.developer-tools"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "server.js",
+      "antigravity_bridge.py",
+      "lib/**/*",
+      "public/**/*",
+      "package.json"
+    ]
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@ltd/j-toml": "^1.38.0",
+    "express": "^5.2.1",
+    "highlight.js": "^11.12.0",
+    "marked": "^18.0.14",
+    "ws": "^8.22.0"
+  },
+  "devDependencies": {
+    "electron": "^44.5.1"
+  }
+}

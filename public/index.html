@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Codex Studio</title>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="mac-app">
+  <div class="window-titlebar" id="windowTitlebar">
+    <div class="titlebar-drag-region">
+      <div class="titlebar-traffic-space"></div>
+      <div class="titlebar-center">
+        <span class="app-title">Codex Studio</span>
+        <span class="titlebar-sep">·</span>
+        <span class="titlebar-model" id="activeModelTag">Loading…</span>
+      </div>
+      <div class="titlebar-actions">
+        <span class="engine-state" id="engineStatusBadge"><span class="status-dot"></span>Ready</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-container" id="appContainer">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-top">
+        <button id="newChatBtn" class="new-chat-btn" title="New chat (⌘N)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          <span>New chat</span>
+        </button>
+      </div>
+
+      <div class="sidebar-block">
+        <div class="block-label">Workspace</div>
+        <button class="workspace-row" id="workspacePill" title="Working directory for commands and file edits">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          <span class="workspace-name" id="workspaceName">Loading…</span>
+        </button>
+        <button id="changeWorkspaceBtn" class="quiet-link">Change folder</button>
+      </div>
+
+      <div class="sidebar-block">
+        <div class="block-label">Model</div>
+        <button class="model-row" id="sidebarModelCard" title="Active model">
+          <span class="model-text">
+            <span class="model-id" id="sidebarModelId">Checking…</span>
+            <span class="model-provider" id="sidebarProviderBadge">—</span>
+          </span>
+        </button>
+        <button id="manageModelsBtn" class="quiet-link">Manage models</button>
+      </div>
+
+      <div class="sidebar-block history-block">
+        <div class="block-label block-label-row">
+          <span>Recent</span>
+          <button id="refreshThreadsBtn" class="icon-btn" title="Refresh">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.9-3.4L23 10M1 14l4.6 4.4A9 9 0 0 0 20.5 15"/></svg>
+          </button>
+        </div>
+        <div class="threads-list" id="threadsList">
+          <div class="threads-loading">Loading…</div>
+        </div>
+      </div>
+
+      <div class="sidebar-bottom">
+        <button id="openModelModalBtn" class="settings-row">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span>Settings</span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="chat-main" id="chatMain">
+      <header class="chat-header">
+        <div class="chat-header-left">
+          <button id="sidebarToggleBtn" class="icon-btn" title="Toggle sidebar">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+          </button>
+          <h2 class="chat-header-title" id="chatThreadTitle">New chat</h2>
+        </div>
+        <div class="chat-header-right">
+          <span class="header-model" id="currentModelDisplay">—</span>
+          <button id="topAddModalBtn" class="header-btn" title="Add model">Add model</button>
+          <button id="clearChatBtn" class="header-btn" title="Clear conversation">Clear</button>
+        </div>
+      </header>
+
+      <div class="messages-container" id="messagesContainer">
+        <div class="welcome" id="welcomeHero">
+          <h1 class="welcome-title">Where should we start?</h1>
+          <div class="suggestions">
+            <button class="suggestion" data-prompt="List the files in my workspace and summarize the project structure.">
+              <span class="suggestion-title">Survey the workspace</span>
+              <span class="suggestion-hint">List files and summarize the project</span>
+            </button>
+            <button class="suggestion" data-prompt="Use @computer to inspect what windows are open right now.">
+              <span class="suggestion-title">Check the desktop</span>
+              <span class="suggestion-hint">See open windows with @computer</span>
+            </button>
+            <button class="suggestion" data-prompt="Use @chrome to read the currently open tab and summarize it.">
+              <span class="suggestion-title">Read the open tab</span>
+              <span class="suggestion-hint">Summarize with @chrome</span>
+            </button>
+            <button class="suggestion" data-prompt="Review the latest git diff in my workspace and point out issues.">
+              <span class="suggestion-title">Review recent changes</span>
+              <span class="suggestion-hint">Look over the latest diff</span>
+            </button>
+          </div>
+        </div>
+        <div class="messages-feed" id="messagesFeed"></div>
+      </div>
+
+      <div class="composer-dock">
+        <div class="composer-box" id="composerBox">
+          <textarea
+            id="promptInput"
+            class="composer-textarea"
+            placeholder="Message Codex…"
+            rows="1"
+          ></textarea>
+          <div class="composer-row">
+            <div class="composer-left">
+              <div class="model-select-wrapper">
+                <button id="modelPickerBtn" class="model-picker-btn" title="Switch model">
+                  <span id="pickerModelName">—</span>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="picker-dropdown" id="modelPickerDropdown">
+                  <div class="picker-dropdown-header">Model</div>
+                  <div class="picker-list" id="pickerModelsList"></div>
+                  <div class="picker-dropdown-footer">
+                    <button id="pickerAddCustomBtn" class="picker-add-btn">Add custom model</button>
+                  </div>
+                </div>
+              </div>
+              <div class="mention-bar" id="pluginChipsBar">
+                <button class="mention" data-tag="@computer" title="macOS desktop automation">@computer</button>
+                <button class="mention" data-tag="@chrome" title="Read and control Chrome tabs">@chrome</button>
+                <button class="mention" data-tag="@browser" title="Headless web research">@browser</button>
+                <button class="mention" data-tag="@documents" title="Create and edit documents">@documents</button>
+                <button class="mention" data-tag="@code-review" title="Review git diffs">@code-review</button>
+                <button class="mention" data-tag="@visualize" title="Charts and visuals">@visualize</button>
+              </div>
+            </div>
+            <div class="composer-right">
+              <button id="stopBtn" class="stop-btn hidden" title="Stop">
+                <span class="stop-square"></span>
+                <span>Stop</span>
+              </button>
+              <button id="sendBtn" class="send-btn" title="Send (Enter)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <p class="composer-note">Runs on your machine. Check important output before acting on it.</p>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="modelModal">
+    <div class="modal-dialog" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">Add model</h3>
+          <p class="modal-subtitle">Registers a provider in <code>~/.codex/config.toml</code>.</p>
+        </div>
+        <button id="closeModalBtn" class="modal-close-btn" aria-label="Close">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Provider preset</label>
+          <div class="preset-list" id="presetPills"></div>
+        </div>
+
+        <form id="addModelForm" class="model-form">
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="providerId" class="form-label">Provider ID</label>
+              <input type="text" id="providerId" class="form-input" placeholder="openrouter" required>
+            </div>
+            <div class="form-group">
+              <label for="providerName" class="form-label">Display name</label>
+              <input type="text" id="providerName" class="form-input" placeholder="OpenRouter">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="providerBaseUrl" class="form-label">Base URL</label>
+            <input type="url" id="providerBaseUrl" class="form-input" placeholder="https://openrouter.ai/api/v1" required>
+          </div>
+
+          <div class="form-group">
+            <label for="providerApiKey" class="form-label">API key</label>
+            <div class="input-with-action">
+              <input type="password" id="providerApiKey" class="form-input" placeholder="Stored in ~/.codex/.env">
+              <button type="button" id="toggleApiKeyBtn" class="input-action-btn">Show</button>
+            </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="modelName" class="form-label">Model ID</label>
+              <input type="text" id="modelName" class="form-input" placeholder="anthropic/claude-3.5-sonnet" required>
+            </div>
+            <div class="form-group">
+              <label for="wireApi" class="form-label">Protocol</label>
+              <select id="wireApi" class="form-select">
+                <option value="responses" selected>responses</option>
+                <option value="chat">chat</option>
+              </select>
+            </div>
+          </div>
+
+          <label class="checkbox-label">
+            <input type="checkbox" id="setAsDefaultCheckbox" checked>
+            <span>Set as active model</span>
+          </label>
+
+          <div class="test-feedback" id="testFeedback"></div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" id="testConnectionBtn" class="btn-secondary">Test connection</button>
+        <div class="footer-actions-right">
+          <button type="button" id="cancelModalBtn" class="btn-ghost">Cancel</button>
+          <button type="button" id="saveModelBtn" class="btn-primary">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop wizard-backdrop" id="setupWizard">
+    <div class="modal-dialog wizard-dialog" role="dialog" aria-modal="true" aria-label="First-run setup">
+      <div class="wizard-steps" id="wizardSteps"></div>
+      <div class="modal-header wizard-header">
+        <div>
+          <h3 class="modal-title" id="wizardTitle">Set up Codex Studio</h3>
+          <p class="modal-subtitle" id="wizardSubtitle">Connect your models. This only takes a minute.</p>
+        </div>
+      </div>
+      <div class="modal-body wizard-body" id="wizardBody"></div>
+      <div class="modal-footer wizard-footer" id="wizardFooter"></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="workspaceModal">
+    <div class="modal-dialog modal-dialog-sm" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h3 class="modal-title">Workspace folder</h3>
+        <button id="closeWorkspaceModalBtn" class="modal-close-btn" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="customWorkspaceInput" class="form-label">Path</label>
+          <input type="text" id="customWorkspaceInput" class="form-input" placeholder="/Users/you/Projects/my-app">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="cancelWorkspaceBtn" class="btn-ghost">Cancel</button>
+        <button type="button" id="saveWorkspaceBtn" class="btn-primary">Set folder</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/vendor/marked/lib/marked.umd.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
