@@ -34,11 +34,15 @@ function createWindow() {
     return;
   }
 
+  const iconPath = path.join(__dirname, 'build', 'icon.png');
+
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 860,
     minWidth: 960,
     minHeight: 640,
+    title: 'Codex Studio',
+    icon: iconPath,
     titleBarStyle: 'hiddenInset',
     trafficLightPosition: { x: 18, y: 18 },
     backgroundColor: '#f6f6f4',
@@ -63,6 +67,10 @@ function createWindow() {
       }
     });
   };
+
+  if (process.platform === 'darwin' && app.dock) {
+    try { app.dock.setIcon(iconPath); } catch (e) {}
+  }
 
   loadWithRetry();
 
