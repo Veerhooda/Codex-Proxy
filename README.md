@@ -2,7 +2,7 @@
 
 <img src="public/logo.png" width="120" height="120" alt="Codex Studio Logo" style="border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.18); margin-bottom: 16px;" />
 
-# ⚡️ Codex Studio
+# Codex Studio
 
 **Supercharge ChatGPT Codex with Any Model & Infinite Credits — While Keeping 100% of Native Tools & Plugins.**
 
