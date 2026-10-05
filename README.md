@@ -1,8 +1,13 @@
 <div align="center">
 
-# ⚡️ Codex Custom Studio
+<img src="public/logo.png" width="120" height="120" alt="Codex Studio Logo" style="border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.18); margin-bottom: 16px;" />
+
+# ⚡️ Codex Studio
 
 **Supercharge ChatGPT Codex with Any Model & Infinite Credits — While Keeping 100% of Native Tools & Plugins.**
+
+[![Download macOS DMG](https://img.shields.io/badge/Download-macOS%20.DMG%20(v1.0.0)-007AFF?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/Veerhooda/Codex-Proxy/releases/latest/download/Codex.Studio-1.0.0-arm64.dmg)
+[![Latest Release](https://img.shields.io/github/v/release/Veerhooda/Codex-Proxy?style=for-the-badge&color=success)](https://github.com/Veerhooda/Codex-Proxy/releases/tag/v1.0.0)
 
 [![Platform](https://img.shields.io/badge/Platform-macOS%20(Apple%20Silicon%20%7C%20Intel)-black?style=for-the-badge&logo=apple)](https://apple.com)
 [![Runtime](https://img.shields.io/badge/Node.js-18%2B-green?style=for-the-badge&logo=node.js)](https://nodejs.org)
