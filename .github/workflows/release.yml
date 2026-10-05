@@ -1,0 +1,107 @@
+name: Release Codex Studio
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Custom tag name (optional, e.g. v1.0.1)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-release:
+    name: Build macOS DMG & Publish Release
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Determine Release Tag
+        id: tag_info
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [[ -n "${{ github.event.inputs.tag_name }}" ]]; then
+            TAG_NAME="${{ github.event.inputs.tag_name }}"
+          elif [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            TAG_NAME="${GITHUB_REF#refs/tags/}"
+          else
+            PKG_VERSION=$(node -p "require('./package.json').version")
+            # Check if this version tag already exists as a release on GitHub
+            if gh release view "v${PKG_VERSION}" >/dev/null 2>&1; then
+              TAG_NAME="v${PKG_VERSION}-build.${GITHUB_RUN_NUMBER}"
+            else
+              TAG_NAME="v${PKG_VERSION}"
+            fi
+          fi
+          echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_ENV
+          echo "Resolved release tag: ${TAG_NAME}"
+
+      - name: Build macOS DMG Installer
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+        run: |
+          npx electron-builder --mac dmg
+
+      - name: Verify build artifacts
+        run: |
+          ls -la dist/
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          name: Codex Studio ${{ env.TAG_NAME }}
+          files: |
+            dist/*.dmg
+            dist/*.dmg.blockmap
+            dist/latest-mac.yml
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          body: |
+            ### ⚡️ Codex Studio ${{ env.TAG_NAME }}
+
+            Automated build & release of **Codex Studio** for macOS.
+
+            #### ✨ What's included:
+            - **Apple Silicon (arm64)** & **Intel (x64)** DMG installers
+            - Full multi-provider gateway (Claude, Antigravity, Groq, Ollama, OpenAI)
+            - Complete native execution for `@computer`, `@browser`, and custom Codex plugins
+            - 100% local, private encrypted session and token storage
+
+            #### 📦 Installation:
+            1. Download the **`.dmg`** file for your architecture below (or universal/arm64 for M-series Macs).
+            2. Open the disk image and drag **Codex Studio** into your **Applications** folder.
+            3. Launch and start coding!
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
