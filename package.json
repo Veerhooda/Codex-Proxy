@@ -1,6 +1,6 @@
 {
   "name": "codex-custom-studio",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Standalone desktop studio & proxy for ChatGPT Codex with multi-model intelligence",
   "main": "main.js",
   "scripts": {

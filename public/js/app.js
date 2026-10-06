@@ -1380,24 +1380,99 @@ function renderWizardAntigravity(body, footer) {
   body.innerHTML = `
     <div class="wizard-accounts" id="wizardAccounts">
       ${accounts.length === 0 ? '<p class="wizard-text">No Google account connected yet.</p>' :
-        accounts.map((a) => `<div class="wizard-account"><span>${escapeHtml(a.email)}</span><span class="wizard-connected">connected</span></div>`).join('')}
+        accounts.map((a) => `
+          <div class="wizard-account" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>${escapeHtml(a.email)}</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="wizard-connected">connected</span>
+              <button type="button" class="btn-ghost" data-remove-email="${escapeHtml(a.email)}" style="font-size:11px; padding:2px 6px;">Remove</button>
+            </div>
+          </div>
+        `).join('')}
     </div>
     <div class="wizard-oauth-row">
       <button type="button" class="btn-primary" id="wizardGoogleBtn">Connect Google account</button>
     </div>
-    <p class="wizard-note" id="wizardOAuthNote"></p>`;
+    <p class="wizard-note" id="wizardOAuthNote"></p>
+    <div id="manualCodeSection" class="hidden" style="margin-top: 14px; text-align: left; padding: 12px; background: var(--bg-hover); border-radius: 8px; border: 1px solid var(--line);">
+      <p style="font-size: 12px; color: var(--text-color); margin-bottom: 6px; font-weight: 500;">
+        Signed in in your browser?
+      </p>
+      <p style="font-size: 11.5px; color: var(--muted); margin-bottom: 8px; line-height: 1.4;">
+        If your browser did not redirect back automatically, copy the full URL from the browser address bar (or the authorization code) and paste it below:
+      </p>
+      <div style="display: flex; gap: 8px;">
+        <input type="text" id="manualAuthCodeInput" class="form-input" style="font-size: 12px; padding: 6px 10px; flex: 1;" placeholder="http://localhost:51121/oauth-callback?code=... or 4/0xxx...">
+        <button type="button" class="btn-secondary" id="submitManualCodeBtn" style="white-space: nowrap; font-size: 12px;">Submit Code</button>
+      </div>
+      <p id="manualCodeFeedback" style="font-size: 11.5px; margin-top: 6px; margin-bottom: 0;"></p>
+    </div>`;
+
   body.querySelector('#wizardGoogleBtn').addEventListener('click', startGoogleOAuth);
+
+  body.querySelectorAll('[data-remove-email]').forEach((btn) => {
+    btn.addEventListener('click', async (e) => {
+      const email = e.currentTarget.getAttribute('data-remove-email');
+      if (!confirm(`Disconnect Google account ${email}?`)) return;
+      await fetch('/api/antigravity/remove', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      await refreshSetupState();
+      renderWizard();
+    });
+  });
+
   wizardButton(footer, 'Back', false, () => { wizard.step = 0; renderWizard(); });
   wizardButton(footer, 'Continue', true, () => { wizard.step = 2; renderWizard(); });
 }
 
 async function startGoogleOAuth() {
   const note = document.getElementById('wizardOAuthNote');
+  const manualSec = document.getElementById('manualCodeSection');
+  const manualInput = document.getElementById('manualAuthCodeInput');
+  const manualSubmit = document.getElementById('submitManualCodeBtn');
+  const manualFb = document.getElementById('manualCodeFeedback');
+
   try {
     const res = await fetch('/api/antigravity/auth-url', { method: 'POST' });
     const { url, sessionId } = await res.json();
-    window.open(url, 'antigravity-oauth', 'width=520,height=640');
-    note.textContent = 'Waiting for Google sign-in in the popup…';
+    window.open(url, '_blank');
+    note.textContent = 'Google sign-in opened in your browser. Complete sign-in there…';
+    if (manualSec) manualSec.classList.remove('hidden');
+
+    if (manualSubmit) {
+      manualSubmit.onclick = async () => {
+        const val = manualInput.value.trim();
+        if (!val) return;
+        manualFb.textContent = 'Submitting code…';
+        manualFb.style.color = 'var(--muted)';
+        try {
+          const resp = await fetch('/api/antigravity/submit-code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId, input: val })
+          });
+          const data = await resp.json();
+          if (data.status === 'done') {
+            if (wizard.oauthTimer) clearInterval(wizard.oauthTimer);
+            manualFb.textContent = `Connected as ${data.account.email}!`;
+            manualFb.style.color = 'var(--accent-color, #10a37f)';
+            note.textContent = `Connected as ${data.account.email}.`;
+            await refreshSetupState();
+            setTimeout(() => renderWizard(), 800);
+          } else {
+            manualFb.textContent = `Sign-in failed: ${data.error || 'Invalid code'}`;
+            manualFb.style.color = '#ef4444';
+          }
+        } catch (err) {
+          manualFb.textContent = `Error: ${err.message}`;
+          manualFb.style.color = '#ef4444';
+        }
+      };
+    }
+
     if (wizard.oauthTimer) clearInterval(wizard.oauthTimer);
     wizard.oauthTimer = setInterval(async () => {
       try {

@@ -49,10 +49,18 @@ function createWindow() {
     vibrancy: 'under-window',
     visualEffectState: 'active',
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, preload.js),
       nodeIntegration: false,
       contextIsolation: true
     }
+  });
+
+  // Open external links (e.g. Google OAuth) in system default browser to avoid Google 403 disallowed_useragent
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      shell.openExternal(url);
+    }
+    return { action: 'deny' };
   });
 
   const appUrl = `http://localhost:${PORT}`;

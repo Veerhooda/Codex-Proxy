@@ -128,10 +128,32 @@ def refresh_access_token():
         raise RuntimeError("token refresh failed: %s" % last_err)
 
 
+def onboard_user(token, tier_id="free-tier"):
+    headers = {"Authorization": "Bearer " + token, "Content-Type": "application/json",
+               "User-Agent": "antigravity/1.0", "X-Client-Name": "antigravity"}
+    body = {"tierId": tier_id, "metadata": CLIENT_METADATA}
+    for ep in LOAD_ENDPOINTS:
+        try:
+            resp = json.load(_post_json(ep + "/v1internal:onboardUser", body, headers, 20))
+            proj = resp.get("response", {}).get("cloudaicompanionProject", {})
+            pid = proj.get("id") if isinstance(proj, dict) else proj
+            if pid:
+                log("onboardUser succeeded, project: %s" % pid)
+                return pid
+        except Exception as e:
+            log("onboardUser failed at %s: %s" % (ep, str(e)[:150]))
+    return None
+
+
 def discover_project(token):
     with _project_cache["lock"]:
         if _project_cache["project"] and time.time() < _project_cache["exp"]:
             return _project_cache["project"]
+        for acct in load_accounts():
+            if acct.get("projectId"):
+                _project_cache["project"] = acct["projectId"]
+                _project_cache["exp"] = time.time() + 3600
+                return acct["projectId"]
         headers = {"Authorization": "Bearer " + token, "Content-Type": "application/json",
                    "User-Agent": "antigravity/1.0", "X-Client-Name": "antigravity"}
         for ep in LOAD_ENDPOINTS:
@@ -146,6 +168,11 @@ def discover_project(token):
                     return pid
             except Exception as e:
                 log("loadCodeAssist failed at %s: %s" % (ep, str(e)[:150]))
+        pid = onboard_user(token)
+        if pid:
+            _project_cache["project"] = pid
+            _project_cache["exp"] = time.time() + 3600
+            return pid
         raise RuntimeError("project discovery failed")
 
 

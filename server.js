@@ -294,6 +294,19 @@ app.get('/api/antigravity/flow/:sessionId', async (req, res) => {
   }
 });
 
+// API: Manually submit callback URL or authorization code
+app.post('/api/antigravity/submit-code', async (req, res) => {
+  try {
+    const { sessionId, input } = req.body || {};
+    if (!input) return res.status(400).json({ status: 'error', error: 'No code or URL provided' });
+    const account = await antigravityAuth.completeFlowWithCode(sessionId, input);
+    await bridgeManager.ensureBridge();
+    res.json({ status: 'done', account });
+  } catch (err) {
+    res.status(500).json({ status: 'error', error: err.message });
+  }
+});
+
 app.get('/api/antigravity/accounts', (req, res) => {
   res.json({ accounts: antigravityAuth.readAccounts().map((a) => ({ email: a.email, projectId: a.projectId || null })) });
 });

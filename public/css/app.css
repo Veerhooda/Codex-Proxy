@@ -69,9 +69,19 @@ button { font-family: inherit; }
 .titlebar-center {
   flex: 1;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
   min-width: 0;
+}
+.titlebar-logo {
+  width: 18px;
+  height: 18px;
+  max-width: 18px;
+  max-height: 18px;
+  border-radius: 4px;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: inline-block;
 }
 .app-title { font-weight: 600; font-size: 13px; }
 .titlebar-sep { color: var(--faint); }
