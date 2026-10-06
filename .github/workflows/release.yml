@@ -69,8 +69,9 @@ jobs:
       - name: Build macOS DMG Installer
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npx electron-builder --mac dmg
+          npx electron-builder --mac dmg --publish never
 
       - name: Verify build artifacts
         run: |

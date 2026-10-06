@@ -1,13 +1,13 @@
 {
   "name": "codex-custom-studio",
   "version": "1.0.0",
-  "description": "",
+  "description": "Standalone desktop studio & proxy for ChatGPT Codex with multi-model intelligence",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "server": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dist": "electron-builder --mac dmg"
+    "dist": "electron-builder --mac dmg --publish never"
   },
   "build": {
     "appId": "studio.codex.custom",
